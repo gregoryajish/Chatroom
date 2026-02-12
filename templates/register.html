@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Chatroom</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="auth-card card">
+            <div class="auth-header">
+                <h1 class="auth-title">✨ Join Chatroom</h1>
+                <p class="auth-subtitle">Create your account to start chatting</p>
+            </div>
+
+            <form method="POST" action="/register">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                <div class="input-group">
+                    <label class="input-label" for="username">Username</label>
+                    <input type="text" id="username" name="username" class="input" placeholder="Choose a username"
+                        required autocomplete="username">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label" for="email">Email or Phone</label>
+                    <input type="text" id="email" name="email" class="input"
+                        placeholder="your@email.com or phone number" required autocomplete="email">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label" for="password">Password</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="password" name="password" class="input"
+                            placeholder="Create a strong password" required autocomplete="new-password">
+                        <span class="password-toggle" onclick="togglePassword('password')" id="toggleIcon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    Create Account
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                Already have an account? <a href="/login">Login here</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const toggle = document.getElementById('toggleIcon');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                // Eye slash icon (hidden)
+                toggle.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>`;
+            } else {
+                input.type = 'password';
+                // Eye icon (visible)
+                toggle.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>`;
+            }
+        }
+    </script>
+</body>
+
+</html>

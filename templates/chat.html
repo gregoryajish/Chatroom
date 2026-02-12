@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - Chatroom</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="chat-layout">
+        <!-- Sidebar -->
+        <div class="chat-sidebar">
+            <!-- User Profile Section -->
+            <div class="user-profile">
+                <a href="/profile"
+                    style="text-decoration: none; color: inherit; display: block; transition: transform 0.3s ease;">
+                    <div class="user-avatar">
+                        {% if user_profile_picture %}
+                        <img src="{{ url_for('static', filename='uploads/profiles/' + user_profile_picture) }}"
+                            alt="{{ username }}">
+                        {% else %}
+                        {{ username[0].upper() }}
+                        {% endif %}
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">{{ username }}</div>
+                        <span class="user-status">
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                style="display: inline-block; vertical-align: middle; margin-right: 4px;">
+                                <circle cx="6" cy="6" r="5" fill="#10b981" />
+                            </svg>
+                            Online
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="rooms-section">
+                <!-- Public Room -->
+                <div class="section-title">Public</div>
+                <ul class="room-list">
+                    <li class="room-item">
+                        <a href="/chat" class="room-link {% if current_room == 1 %}active{% endif %}">
+                            <div class="room-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="2" y1="12" x2="22" y2="12" />
+                                    <path
+                                        d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                                </svg>
+                            </div>
+                            <span>Public Chat</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Private Rooms -->
+                <div class="section-title">Private Chats</div>
+                <ul class="room-list">
+                    {% if private_rooms %}
+                    {% for room in private_rooms %}
+                    <li class="room-item">
+                        <a href="/room/{{ room[0] }}"
+                            class="room-link {% if current_room == room[0] %}active{% endif %}">
+                            <div class="room-icon">
+                                {% if room[2] %}
+                                <img src="{{ url_for('static', filename='uploads/profiles/' + room[2]) }}"
+                                    alt="{{ room[1] }}"
+                                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                {% else %}
+                                {{ room[1][0].upper() }}
+                                {% endif %}
+                            </div>
+                            <span>{{ room[1] }}</span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                    {% else %}
+                    <li style="padding: 1rem; color: var(--text-muted); font-size: 0.875rem; text-align: center;">
+                        No private chats yet
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <!-- Friend Request Section -->
+            <div class="friend-request-section">
+                <h4 style="margin-bottom: 1rem; font-size: 0.95rem;">Add Friends</h4>
+                <form method="POST" action="/api/send_request" class="friend-request-form" id="friendRequestForm"
+                    style="margin-bottom: 1rem;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" name="friend_username" class="input" placeholder="Enter username..." required
+                            style="padding: 0.625rem 0.875rem; font-size: 0.875rem;">
+                        <button type="submit" class="btn btn-primary btn-small">Add</button>
+                    </div>
+                </form>
+                <a href="/view_requests" class="btn btn-secondary btn-small"
+                    style="width: 100%; text-align: center; position: relative;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        style="vertical-align: middle; margin-right: 6px;">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                        <polyline points="22,6 12,13 2,6" />
+                    </svg>
+                    View Requests
+                    {% if request_count > 0 %}
+                    <span class="badge">{{ request_count }}</span>
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="chat-main">
+            <!-- Chat Header -->
+            <div class="chat-header">
+                <div>
+                    <h2 class="chat-title">
+                        {% if current_room == 1 %}
+                        Public Chat
+                        {% else %}
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                        Private Chat
+                        {% endif %}
+                    </h2>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="chat-messages" id="chat-box">
+                {% for msg in messages %}
+                <div class="message {% if msg[0] == username %}message-sent{% else %}message-received{% endif %}">
+                    {% if msg[0] != username %}
+                    <div class="message-avatar" data-username="{{ msg[0] }}">
+                        {% if msg[2] %}
+                        <img src="{{ url_for('static', filename='uploads/profiles/' + msg[2]) }}" alt="{{ msg[0] }}">
+                        {% else %}
+                        {{ msg[0][0].upper() }}
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-author">{{ msg[0] }}</span>
+                        </div>
+                        <div class="message-bubble">{{ msg[1] }}</div>
+                    </div>
+                    {% if msg[0] == username %}
+                    <div class="message-avatar" data-username="{{ msg[0] }}">
+                        {% if msg[2] %}
+                        <img src="{{ url_for('static', filename='uploads/profiles/' + msg[2]) }}" alt="{{ msg[0] }}">
+                        {% else %}
+                        {{ msg[0][0].upper() }}
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Chat Input -->
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <input type="hidden" id="room_id" value="{{ current_room if current_room else 1 }}">
+                    <input type="text" id="message" class="chat-input" placeholder="Type a message..."
+                        autocomplete="off">
+                    <button onclick="sendMessage()" class="send-button">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13" />
+                            <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Profile Popup Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeProfileModal()">&times;</span>
+            <div class="profile-header">
+                <div class="profile-avatar" id="profileAvatar"></div>
+                <h2 id="profileUsername"></h2>
+            </div>
+            <div class="profile-actions">
+                <button class="btn btn-primary" onclick="sendFriendRequestFromProfile()">
+                    ➕ Add Friend
+                </button>
+            </div>
+            <div id="profileMessage" class="profile-message"></div>
+        </div>
+    </div>
+
+    <!-- Socket.IO -->
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+        // Pass username to JavaScript
+        var currentUsername = "{{ username }}";
+    </script>
+    <script src="{{ url_for('static', filename='chat.js') }}"></script>
+</body>
+
+</html>

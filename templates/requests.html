@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friend Requests - Chatroom</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="requests-container">
+        <div class="requests-header">
+            <h1>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    style="vertical-align: middle; margin-right: 8px;">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                    <polyline points="22,6 12,13 2,6" />
+                </svg>
+                Friend Requests
+            </h1>
+            <p class="text-muted">Manage your pending friend requests</p>
+        </div>
+
+        {% if requests %}
+        {% for req in requests %}
+        <div class="request-card">
+            <div class="request-info">
+                <div class="user-avatar">{{ req[1][0].upper() }}</div>
+                <div>
+                    <strong>{{ req[1] }}</strong>
+                    <p class="text-muted" style="margin: 0; font-size: 0.875rem;">wants to connect with you</p>
+                </div>
+            </div>
+            <div class="request-actions">
+                <a href="/accept_request/{{ req[0] }}" class="btn btn-success btn-small">
+                    ✓ Accept
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <h3>No pending requests</h3>
+            <p class="text-muted">You don't have any friend requests at the moment</p>
+        </div>
+        {% endif %}
+
+        <div style="margin-top: 2rem; text-align: center;">
+            <a href="/chat" class="btn btn-secondary">← Back to Chat</a>
+        </div>
+    </div>
+</body>
+
+</html>
