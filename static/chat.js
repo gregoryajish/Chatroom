@@ -80,6 +80,38 @@ window.onclick = function (event) {
     }
 }
 
+// ---------------- SEND FRIEND REQUEST ----------------
+function sendFriendRequest(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    const usernameInput = document.getElementById('friendUsernameInput');
+    const username = usernameInput.value.trim();
+
+    if (!username) return;
+
+    // Send AJAX request
+    fetch('/api/send_request', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username: username })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                usernameInput.value = ''; // Clear input
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error sending friend request:', error);
+            alert('Error sending friend request');
+        });
+}
+
 // ---------------- SEND MESSAGE ----------------
 function sendMessage() {
 

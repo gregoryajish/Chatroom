@@ -89,11 +89,11 @@
             <!-- Friend Request Section -->
             <div class="friend-request-section">
                 <h4 style="margin-bottom: 1rem; font-size: 0.95rem;">Add Friends</h4>
-                <form method="POST" action="/api/send_request" class="friend-request-form" id="friendRequestForm"
+                <form class="friend-request-form" id="friendRequestForm" onsubmit="sendFriendRequest(event)"
                     style="margin-bottom: 1rem;">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                     <div style="display: flex; gap: 0.5rem;">
-                        <input type="text" name="friend_username" class="input" placeholder="Enter username..." required
+                        <input type="text" name="username" id="friendUsernameInput" class="input"
+                            placeholder="Enter username..." required
                             style="padding: 0.625rem 0.875rem; font-size: 0.875rem;">
                         <button type="submit" class="btn btn-primary btn-small">Add</button>
                     </div>

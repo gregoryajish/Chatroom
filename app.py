@@ -8,7 +8,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from dotenv import load_dotenv
 import os
-import imghdr
+import filetype
 import logging
 
 # Load environment variables
@@ -96,7 +96,8 @@ def home():
 @limiter.limit("5 per minute")
 def register():
     if request.method == 'POST':
-        username = request.form['username']\n        password = request.form['password']
+        username = request.form['username']
+        password = request.form['password']
         email_or_phone = request.form['email']
         ip_address = request.remote_addr
 
