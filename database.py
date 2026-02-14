@@ -1,13 +1,10 @@
 import psycopg2
+import os
 
 def get_connection():
     try:
         conn = psycopg2.connect(
-            host="localhost",
-            database="chatroom_db",
-            user="postgres",        # change if needed
-            password="1234",# change this
-            port="5432"
+            os.environ.get("DATABASE_URL")
         )
         return conn
     except Exception as e:
